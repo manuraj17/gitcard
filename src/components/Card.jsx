@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import {
   Card as MuCard,
   CardMedia,
@@ -12,54 +12,55 @@ import "./Card.scss";
 
 const URL = "https://api.github.com/users/";
 
-class Card extends Component {
-  constructor(props, context) {
-    super(props, context);
-    this.state = {
-      handle: null,
-      data: null,
-      error: null
-    };
-  }
+function Card(props) {
+  let [handle, setHandle] = useState(null);
+  let [data, setData] = useState(null);
+  let [error, setError] = useState(null);
 
-  componentDidMount() {
-    const { search } = this.props.location;
+  useEffect(() => {
+    const { search } = props.location;
     const { q: handle } = parse(search, { ignoreQueryPrefix: true });
-    this.setState({ handle });
+
+    setHandle(handle);
+
     axios
       .get(URL + handle)
-      .then(response => this.setState({ data: response.data }))
-      .catch(error => console.log(error));
-  }
+      .then(response => setData(response.data))
+      .catch(error => setError(error));
+  }, [props.location]);
 
-  render() {
-    return (
-      <div>
-        <MuCard>
-          {this.state.data && (
-            <CardContent className="card">
-              <CardMedia
-                className="avatar"
-                component="img"
-                image={this.state.data.avatar_url}
-                title={this.state.name}
-              />
-              <Typography color="textSecondary" gutterBottom></Typography>
-              <Typography variant="h5" component="h2">
-                {this.state.data.name}
-              </Typography>
-              <Typography color="textSecondary">
-                {this.state.data.login}
-              </Typography>
-              <Typography variant="body2" component="p">
-                {this.state.data.bio}
-              </Typography>
-            </CardContent>
-          )}
-        </MuCard>
-      </div>
-    );
-  }
+  return (
+    <div>
+      <MuCard>
+        {data && (
+          <CardContent className="card">
+            <CardMedia
+              className="avatar"
+              component="img"
+              image={data.avatar_url}
+              title={data.name}
+            />
+            <Typography color="textSecondary" gutterBottom />
+            <Typography variant="h5" component="h2">
+              {data.name}
+            </Typography>
+            <Typography color="textSecondary">{data.login}</Typography>
+            <Typography variant="body2" component="p">
+              {data.bio}
+            </Typography>
+          </CardContent>
+        )}
+
+        {error && (
+          <CardContent>
+            <Typography variant="h5" component="h2">
+              {error.message}
+            </Typography>
+          </CardContent>
+        )}
+      </MuCard>
+    </div>
+  );
 }
 
 export default Card;

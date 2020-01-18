@@ -1,44 +1,35 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import { TextField } from "@material-ui/core";
 import { withRouter } from "react-router";
 import { stringify } from "qs";
 
-class Input extends Component {
-  constructor(props, context) {
-    super(props, context);
+function Input(props) {
+  let [q, setQ] = useState("");
 
-    this.state = {
-      q: ""
-    };
-  }
-
-  handleChange = event => {
-    this.setState({ q: event.target.value });
+  const handleChange = event => {
+    setQ(event.target.value);
   };
 
-  handleKeyPress = event => {
+  const handleKeyPress = event => {
     if (event.key === "Enter") {
-      const { q } = this.state;
       const search = stringify(
         { q },
         {
           addQueryPrefix: true
         }
       );
-      this.props.history.push("/card" + search);
+      props.history.push("/card" + search);
     }
   };
 
-  render() {
-    return (
-      <TextField
-        required
-        variant={"outlined"}
-        onKeyPress={this.handleKeyPress}
-        onChange={this.handleChange}
-      />
-    );
-  }
+  return (
+    <TextField
+      required
+      variant={"outlined"}
+      onKeyPress={handleKeyPress}
+      onChange={handleChange}
+    />
+  );
 }
 
 export default withRouter(Input);
